@@ -35,18 +35,29 @@ namespace Insurance_Management.Repositories
         }
         public Policy GetPolicy(int policyId)
         {
+            Policy policy = new Policy();
             cmd.CommandText = "select * from Policy where policyId=@policyId";
             cmd.Parameters.AddWithValue("@policyId", policyId);
-            sqlConnection.Open();
+            
             cmd.Connection = sqlConnection;
-            cmd.ExecuteNonQuery();
+            sqlConnection.Open();
+            SqlDataReader reader = cmd.ExecuteReader();
+            while(reader.Read())
+            {
+                policy = new Policy();
+                policy.PolicyId = (int)reader["policyId"];
+                policy.PolicyName = (string)reader["policyName"];
+            }
+            
             sqlConnection.Close();
-            return GetPolicy(policyId);
+            return policy;
         }
         public List<Policy> GetAllPolicies()
         {
             List<Policy> policies = new List<Policy>();
             cmd.CommandText = "select * from Policies";
+            
+            cmd.Connection = sqlConnection;
             sqlConnection.Open();
             SqlDataReader reader = cmd.ExecuteReader();
             while (reader.Read())
@@ -67,6 +78,7 @@ namespace Insurance_Management.Repositories
             cmd.Parameters.AddWithValue("@policyId", policy.PolicyId);
             sqlConnection.Open();
             cmd.Connection = sqlConnection;
+            
             cmd.ExecuteNonQuery();
             sqlConnection.Close();
             return true;
@@ -100,7 +112,7 @@ namespace Insurance_Management.Repositories
                 return true;
             }
             return false;
-
+            sqlConnection.Close();
         }
     }
 }
